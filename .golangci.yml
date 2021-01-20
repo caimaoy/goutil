@@ -1,0 +1,23 @@
+run:
+  tests: false
+linters:
+  enable:
+    - asciicheck
+    - bodyclose
+    - deadcode
+    - errcheck
+    - exportloopref
+    - gocognit
+    - gofmt
+    - govet
+    - ineffassign
+    - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - sqlclosecheck
+    - typecheck
+    - unused
+    - varcheck
+  disable-all: true
+  fast: true
