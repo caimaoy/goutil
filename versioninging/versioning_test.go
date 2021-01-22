@@ -3,16 +3,34 @@ package versioning
 import (
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreate(t *testing.T) {
 	cases := []struct {
-		ver    string
-		semVer *SemVer
+		ver      string
+		semVer   *SemVer
+		major    string
+		minor    string
+		patch    string
+		matedata string
 	}{
 		{
-			"1.9.0",
-			Create(1, 9, 0, ""),
+			"1.9.0-caimaoy",
+			Create(1, 9, 0, "-caimaoy"),
+			"1",
+			"9",
+			"0",
+			"-caimaoy",
+		},
+		{
+			"1.2.0",
+			Create(1, 2, 0, ""),
+			"1",
+			"2",
+			"0",
+			"",
 		},
 	}
 
@@ -20,6 +38,10 @@ func TestCreate(t *testing.T) {
 		if c.ver != c.semVer.String() {
 			t.Fatalf("expect:%s, got:%s", c.ver, c.semVer.String())
 		}
+		assert.Equal(t, c.semVer.Major(), c.major)
+		assert.Equal(t, c.semVer.Minor(), c.minor)
+		assert.Equal(t, c.semVer.Patch(), c.patch)
+		assert.Equal(t, c.semVer.Metadata(), c.matedata)
 	}
 }
 
@@ -77,5 +99,15 @@ func TestParse(t *testing.T) {
 		if semVer.String() != c.ver || c.semVer.Compare(semVer, nil) != 0 {
 			t.Fatalf("expect:%s, got:%s", c.ver, semVer.String())
 		}
+	}
+}
+
+func TestParseErr(t *testing.T) {
+	var a string = "1.2"
+	var expectErrString = "invalid semantic version 2: 1.2"
+
+	_, err := Parse(a)
+	if err.Error() != expectErrString {
+		t.Errorf("Parse(%s), err %v, expect err %s", a, err, expectErrString)
 	}
 }
