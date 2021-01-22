@@ -30,13 +30,6 @@ test:
 		fi; \
 	done
 
-
-# .PHONY test-coverage
-# test-coverage: ## Run tests with coverage
-# 	@go test -short -coverprofile cover.out -covermode=atomic ${PKG_LIST}
-# 	@cat cover.out >> coverage.txt
-
-
 .PHONY: fmt
 fmt:
 	$(GOFMT) -w $(GOFILES)
@@ -62,4 +55,9 @@ lint:
 
 .PHONY: tools
 tools:
-	go install golang.org/x/lint/golint; \
+	go install golang.org/x/lint/golint;
+
+
+.PHONY: cov-html
+cov-html: test
+	go tool cover -html=coverage.out
