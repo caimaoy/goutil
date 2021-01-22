@@ -5,11 +5,13 @@ VETPACKAGES ?= $(shell $(GO) list ./... | grep -v /examples/)
 GOFILES := $(shell find . -name "*.go")
 TESTFOLDER := $(shell $(GO) list ./... | grep -E 'gin$$|binding$$|render$$' | grep -v examples)
 TESTTAGS ?= ""
+# PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
+
 
 .PHONY: test
 test:
 	echo "mode: count" > coverage.out
-	for d in $(TESTFOLDER); do \
+	for d in $(VETPACKAGES); do \
 		$(GO) test -tags $(TESTTAGS) -v -covermode=count -coverprofile=profile.out $$d > tmp.out; \
 		cat tmp.out; \
 		if grep -q "^--- FAIL" tmp.out; then \
@@ -27,6 +29,13 @@ test:
 			rm profile.out; \
 		fi; \
 	done
+
+
+# .PHONY test-coverage
+# test-coverage: ## Run tests with coverage
+# 	@go test -short -coverprofile cover.out -covermode=atomic ${PKG_LIST}
+# 	@cat cover.out >> coverage.txt
+
 
 .PHONY: fmt
 fmt:
