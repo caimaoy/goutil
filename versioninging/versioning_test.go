@@ -2,6 +2,7 @@ package versioning
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -109,5 +110,73 @@ func TestParseErr(t *testing.T) {
 	_, err := Parse(a)
 	if err.Error() != expectErrString {
 		t.Errorf("Parse(%s), err %v, expect err %s", a, err, expectErrString)
+	}
+}
+
+func TestSemVerStringCompare(t *testing.T) {
+	cases := []struct {
+		a                 string
+		b                 string
+		f                 func(a, b string) int
+		expected          int
+		expectedErrString string
+	}{
+		{
+			"1.2.3abc",
+			"1.2.3def",
+			nil,
+			0,
+			"",
+		},
+		{
+			"0.0.1foo",
+			"0.0.2bar",
+			nil,
+			-1,
+			"",
+		},
+		{
+			"0.0.2foo",
+			"0.0.1bar",
+			nil,
+			1,
+			"",
+		},
+		{
+			"0.0.1abc",
+			"0.0.1def",
+			strings.Compare,
+			-1,
+			"",
+		},
+		{
+			"0.0.1def",
+			"0.0.1abc",
+			strings.Compare,
+			1,
+			"",
+		},
+		{
+			"0.01def",
+			"0.0.1abc",
+			nil,
+			0,
+			"invalid semantic version 2: 0.01def",
+		},
+		{
+			"0.0.1abc",
+			"0.01def",
+			nil,
+			0,
+			"invalid semantic version 2: 0.01def",
+		},
+	}
+
+	for _, c := range cases {
+		res, err := Compare(c.a, c.b, c.f)
+		if err != nil {
+			assert.Equal(t, c.expectedErrString, err.Error())
+		}
+		assert.Equal(t, c.expected, res)
 	}
 }
